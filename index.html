@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사직야구장 - 부산의 야구 성지 TEST</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <i class="fas fa-baseball-ball"></i>
+                    <span>사직야구장</span>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#home">홈</a></li>
+                    <li><a href="#about">소개</a></li>
+                    <li><a href="#schedule">경기일정</a></li>
+                    <li><a href="#seats">좌석정보</a></li>
+                    <li><a href="#gallery">갤러리</a></li>
+                    <li><a href="#contact">연락처</a></li>
+                </ul>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- 메인 섹션 -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>사직야구장</h1>
+            <p>부산의 야구 성지, 롯데 자이언츠의 홈구장</p>
+            <a href="#schedule" class="cta-button">경기 일정 보기</a>
+        </div>
+        <div class="hero-overlay"></div>
+    </section>
+
+    <!-- 소개 섹션 -->
+    <section id="about" class="about">
+        <div class="container">
+            <h2>사직야구장 소개</h2>
+            <div class="about-content">
+                <div class="about-text">
+                    <h3>부산의 야구 성지</h3>
+                    <p>사직야구장은 1985년 개장한 부산의 대표적인 야구장으로, KBO 리그 롯데 자이언츠의 홈구장입니다. 약 28,500명을 수용할 수 있는 규모로, 부산의 야구 팬들에게 사랑받는 구장입니다.</p>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <i class="fas fa-users"></i>
+                            <div>
+                                <h4>수용인원</h4>
+                                <p>28,500명</p>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-calendar-alt"></i>
+                            <div>
+                                <h4>개장년도</h4>
+                                <p>1985년</p>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <div>
+                                <h4>위치</h4>
+                                <p>부산 사하구</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <div class="image-placeholder">
+                        <i class="fas fa-baseball-ball"></i>
+                        <img src="./stadium.jpg">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 경기 일정 섹션 -->
+    <section id="schedule" class="schedule">
+        <div class="container">
+            <h2>경기 일정</h2>
+            <div class="schedule-grid">
+                <div class="game-card">
+                    <div class="game-date">
+                        <span class="month">5월</span>
+                        <span class="day">15일</span>
+                    </div>
+                    <div class="game-info">
+                        <div class="teams">
+                            <span class="team home">롯데</span>
+                            <span class="vs">VS</span>
+                            <span class="team away">삼성</span>
+                        </div>
+                        <p class="time">18:30</p>
+                        <p class="status available">예매 가능</p>
+                    </div>
+                </div>
+                <div class="game-card">
+                    <div class="game-date">
+                        <span class="month">5월</span>
+                        <span class="day">17일</span>
+                    </div>
+                    <div class="game-info">
+                        <div class="teams">
+                            <span class="team home">롯데</span>
+                            <span class="vs">VS</span>
+                            <span class="team away">두산</span>
+                        </div>
+                        <p class="time">18:30</p>
+                        <p class="status available">예매 가능</p>
+                    </div>
+                </div>
+                <div class="game-card">
+                    <div class="game-date">
+                        <span class="month">5월</span>
+                        <span class="day">20일</span>
+                    </div>
+                    <div class="game-info">
+                        <div class="teams">
+                            <span class="team home">롯데</span>
+                            <span class="vs">VS</span>
+                            <span class="team away">LG</span>
+                        </div>
+                        <p class="time">18:30</p>
+                        <p class="status sold-out">매진</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 좌석 정보 섹션 -->
+    <section id="seats" class="seats">
+        <div class="container">
+            <h2>좌석 정보</h2>
+            <div class="seats-content">
+                <div class="seats-map">
+                    <img src="./seat.jpg" alt="좌석배치도" class="seat-layout">
+                </div>
+                <div class="seats-info">
+                    <h3>좌석 가격</h3>
+                    <div class="price-list">
+                        <div class="price-item">
+                            <div class="price-category">프리미엄석</div>
+                            <div class="price-amount">₩50,000</div>
+                        </div>
+                        <div class="price-item">
+                            <div class="price-category">내야석</div>
+                            <div class="price-amount">₩30,000</div>
+                        </div>
+                        <div class="price-item">
+                            <div class="price-category">외야석</div>
+                            <div class="price-amount">₩15,000</div>
+                        </div>
+                        <div class="price-item">
+                            <div class="price-category">외야자유석</div>
+                            <div class="price-amount">₩8,000</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 갤러리 섹션 -->
+    <section id="gallery" class="gallery">
+        <div class="container">
+            <h2>갤러리</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>야구장 전경</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>경기 장면</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <img src="./fan.jpg" alt="팬들의 응원">
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <i class="fas fa-image"></i>
+                        <p>야간 경기</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 연락처 섹션 -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2>연락처 및 오시는 길</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <h4>주소</h4>
+                            <p>부산광역시 사하구 사직로 45</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <h4>전화번호</h4>
+                            <p>051-247-6000</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-subway"></i>
+                        <div>
+                            <h4>지하철</h4>
+                            <p>1호선 사직역 3번 출구</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-bus"></i>
+                        <div>
+                            <h4>버스</h4>
+                            <p>사직야구장 정류장 하차</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-map">
+                    <div id="map" class="kakao-map"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 푸터 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>사직야구장</h3>
+                    <p>부산의 야구 성지, 롯데 자이언츠의 홈구장</p>
+                </div>
+                <div class="footer-section">
+                    <h4>빠른 링크</h4>
+                    <ul>
+                        <li><a href="#home">홈</a></li>
+                        <li><a href="#schedule">경기일정</a></li>
+                        <li><a href="#seats">좌석정보</a></li>
+                        <li><a href="#contact">연락처</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>팔로우</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 사직야구장. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
