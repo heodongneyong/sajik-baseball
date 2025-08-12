@@ -732,3 +732,365 @@ section h2::after {
         height: 250px;
     }
 }
+
+/* Players grid: show all cards in a responsive grid */
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    align-items: stretch;
+}
+
+/* Neutralize carousel wrappers to behave like normal containers */
+.players-carousel-container {
+    overflow: visible;
+    width: 100%;
+}
+
+/* Make inner wrapper a grid as well and kill any transform coming from JS */
+.players-carousel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    transform: none !important;
+}
+
+/* Hide arrow buttons entirely */
+.carousel-nav-btn {
+    display: none !important;
+}
+
+/* Mobile: single column */
+@media (max-width: 768px) {
+    .players-grid,
+    .players-carousel {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Players section */
+.players {
+    background: #fff;
+}
+
+.players-tabs {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.tab-button {
+    border: 1px solid #ff6b35;
+    background: #fff;
+    color: #ff6b35;
+    padding: 0.6rem 1rem;
+    border-radius: 999px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+    background: #fff4ef;
+}
+
+.tab-button.active {
+    background: #ff6b35;
+    color: #fff;
+}
+
+.players-content {
+    margin-top: 0.5rem;
+}
+
+.position-group {
+    display: none;
+}
+
+.position-group.active {
+    display: block;
+}
+
+/* Player cards */
+.player-card {
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.player-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 35px rgba(0,0,0,0.12);
+}
+
+.player-image {
+    width: 100%;
+}
+
+.player-placeholder {
+    width: 100%;
+    height: 240px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.player-placeholder i {
+    font-size: 3rem;
+    opacity: 0.9;
+}
+
+.player-info {
+    padding: 1.25rem 1.25rem 1.1rem;
+}
+
+.player-info h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 0.25rem;
+}
+
+.player-number {
+    color: #ff6b35;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.player-position {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+}
+
+.player-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.player-stats span {
+    background: #fff4ef;
+    color: #e55a2b;
+    border: 1px solid #ffd9cc;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Ensure all cards are visible: grid layout inside carousel wrapper */
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+}
+
+.players-carousel-container { overflow: visible; width: 100%; }
+.players-carousel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    transform: none !important;
+}
+
+/* Hide any carousel navigation */
+.carousel-nav-btn { display: none !important; }
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .players-grid, .players-carousel { grid-template-columns: 1fr; }
+    .player-placeholder { height: 170px; }
+}
+
+/* Pitcher-only carousel (3 cards per view) */
+.position-group#pitcher .players-grid {
+    display: flex;
+    align-items: stretch;
+    gap: 0.75rem; /* restore outer gap */
+}
+
+.position-group#pitcher .carousel-nav-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #ff6b35;
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(255,107,53,0.35);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    flex: 0 0 auto;
+}
+
+.position-group#pitcher .carousel-nav-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(255,107,53,0.45); }
+.position-group#pitcher .carousel-nav-btn:active { transform: translateY(0); }
+.position-group#pitcher .carousel-nav-btn[disabled] { opacity: 0.4; cursor: default; pointer-events: none; box-shadow: none; }
+
+.position-group#pitcher .players-carousel-container {
+    overflow: hidden; /* clip partial cards */
+    flex: 1 1 auto;
+}
+
+.position-group#pitcher .players-carousel {
+    display: flex;
+    gap: 16px; /* restore inner gap between cards */
+    will-change: transform;
+    transition: transform 0.35s ease;
+    transform: translateX(calc(var(--pitcher-offset, 0px) * -1)) !important;
+}
+
+.position-group#pitcher .players-carousel .player-card {
+    flex: 0 0 auto; /* width is set via JS for exact per-view layout */
+}
+
+@media (max-width: 768px) {
+    .position-group#pitcher .carousel-nav-btn { width: 32px; height: 32px; }
+}
+
+/* Catcher-only carousel (3 cards per view) */
+.position-group#catcher .players-grid {
+    display: flex;
+    align-items: stretch;
+    gap: 0.75rem;
+}
+
+.position-group#catcher .carousel-nav-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #ff6b35;
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(255,107,53,0.35);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    flex: 0 0 auto;
+}
+
+.position-group#catcher .carousel-nav-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(255,107,53,0.45); }
+.position-group#catcher .carousel-nav-btn:active { transform: translateY(0); }
+.position-group#catcher .carousel-nav-btn[disabled] { opacity: 0.4; cursor: default; pointer-events: none; box-shadow: none; }
+
+.position-group#catcher .players-carousel-container {
+    overflow: hidden;
+    flex: 1 1 auto;
+}
+
+.position-group#catcher .players-carousel {
+    display: flex;
+    gap: 16px;
+    will-change: transform;
+    transition: transform 0.35s ease;
+    transform: translateX(calc(var(--catcher-offset, 0px) * -1)) !important;
+}
+
+.position-group#catcher .players-carousel .player-card {
+    flex: 0 0 auto;
+}
+
+@media (max-width: 768px) {
+    .position-group#catcher .carousel-nav-btn { width: 32px; height: 32px; }
+}
+
+/* Infielder-only carousel (3 cards per view) */
+.position-group#infielder .players-grid {
+    display: flex;
+    align-items: stretch;
+    gap: 0.75rem;
+}
+
+.position-group#infielder .carousel-nav-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #ff6b35;
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(255,107,53,0.35);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    flex: 0 0 auto;
+}
+
+.position-group#infielder .carousel-nav-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(255,107,53,0.45); }
+.position-group#infielder .carousel-nav-btn:active { transform: translateY(0); }
+.position-group#infielder .carousel-nav-btn[disabled] { opacity: 0.4; cursor: default; pointer-events: none; box-shadow: none; }
+
+.position-group#infielder .players-carousel-container { overflow: hidden; flex: 1 1 auto; }
+.position-group#infielder .players-carousel {
+    display: flex;
+    gap: 16px;
+    will-change: transform;
+    transition: transform 0.35s ease;
+    transform: translateX(calc(var(--infielder-offset, 0px) * -1)) !important;
+}
+.position-group#infielder .players-carousel .player-card { flex: 0 0 auto; }
+
+@media (max-width: 768px) {
+    .position-group#infielder .carousel-nav-btn { width: 32px; height: 32px; }
+}
+
+/* Outfielder-only carousel (3 cards per view) */
+.position-group#outfielder .players-grid {
+    display: flex;
+    align-items: stretch;
+    gap: 0.75rem;
+}
+
+.position-group#outfielder .carousel-nav-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #ff6b35;
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(255,107,53,0.35);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    flex: 0 0 auto;
+}
+
+.position-group#outfielder .carousel-nav-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(255,107,53,0.45); }
+.position-group#outfielder .carousel-nav-btn:active { transform: translateY(0); }
+.position-group#outfielder .carousel-nav-btn[disabled] { opacity: 0.4; cursor: default; pointer-events: none; box-shadow: none; }
+
+.position-group#outfielder .players-carousel-container { overflow: hidden; flex: 1 1 auto; }
+.position-group#outfielder .players-carousel {
+    display: flex;
+    gap: 16px;
+    will-change: transform;
+    transition: transform 0.35s ease;
+    transform: translateX(calc(var(--outfielder-offset, 0px) * -1)) !important;
+}
+.position-group#outfielder .players-carousel .player-card { flex: 0 0 auto; }
+
+@media (max-width: 768px) {
+    .position-group#outfielder .carousel-nav-btn { width: 32px; height: 32px; }
+}
+
+/* Real player photo styling */
+.player-photo {
+    width: 100%;
+    height: 240px; /* unified image height */
+    object-fit: cover; /* crop to fill uniformly */
+    display: block;
+}

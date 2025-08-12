@@ -39,8 +39,6 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-
-
 // 경기 카드 클릭 이벤트
 document.querySelectorAll('.game-card').forEach(card => {
     card.addEventListener('click', () => {
@@ -83,19 +81,10 @@ function showGameInfo(card) {
     
     document.body.appendChild(modal);
     
-    // 모달 닫기
     const closeBtn = modal.querySelector('.close');
-    closeBtn.onclick = () => {
-        modal.remove();
-    };
+    closeBtn.onclick = () => modal.remove();
+    modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
     
-    modal.onclick = (e) => {
-        if (e.target === modal) {
-            modal.remove();
-        }
-    };
-    
-    // 좌석 선택 버튼
     const ticketBtns = modal.querySelectorAll('.ticket-btn');
     ticketBtns.forEach(btn => {
         btn.onclick = () => {
@@ -107,11 +96,7 @@ function showGameInfo(card) {
 }
 
 // 애니메이션 효과
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
-
+const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
 const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -121,10 +106,8 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// 애니메이션 적용할 요소들
 document.addEventListener('DOMContentLoaded', () => {
     const animateElements = document.querySelectorAll('.stat-item, .game-card, .gallery-item, .contact-item');
-    
     animateElements.forEach(el => {
         el.style.opacity = '0';
         el.style.transform = 'translateY(30px)';
@@ -133,181 +116,376 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// 모달 스타일 추가
-const modalStyles = document.createElement('style');
-modalStyles.textContent = `
-    .game-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 10000;
-    }
+// 선수단 탭 기능
+function initPlayersTabs() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const positionGroups = document.querySelectorAll('.position-group');
     
-    .modal-content {
-        background: white;
-        padding: 2rem;
-        border-radius: 15px;
-        max-width: 500px;
-        width: 90%;
-        position: relative;
-        text-align: center;
-    }
-    
-    .close {
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        font-size: 2rem;
-        cursor: pointer;
-        color: #666;
-    }
-    
-    .close:hover {
-        color: #333;
-    }
-    
-    .modal-content h3 {
-        color: #333;
-        margin-bottom: 1rem;
-    }
-    
-    .ticket-btn {
-        background: #ff6b35;
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 25px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin: 0.5rem;
-    }
-    
-    .ticket-btn:hover {
-        background: #e55a2b;
-        transform: translateY(-2px);
-    }
-    
-    .game-details {
-        margin-bottom: 2rem;
-        text-align: left;
-    }
-    
-    .game-details p {
-        margin-bottom: 0.5rem;
-        color: #333;
-    }
-    
-    .ticket-options h4 {
-        margin-bottom: 1rem;
-        color: #333;
-    }
-    
-    .ticket-buttons {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 1rem;
-    }
-    
-    @media (max-width: 768px) {
-        .modal-content {
-            padding: 1.5rem;
-            margin: 20px;
-        }
-        
-        .ticket-buttons {
-            flex-direction: column;
-        }
-    }
-`;
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetPosition = button.getAttribute('data-position');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            positionGroups.forEach(group => group.classList.remove('active'));
+            const targetGroup = document.getElementById(targetPosition);
+            if (targetGroup) targetGroup.classList.add('active');
+            // 탭 표시가 DOM에 반영된 다음에 레이아웃 재계산
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    window.dispatchEvent(new Event('resize'));
+                });
+            });
+        });
+    });
+}
 
-document.head.appendChild(modalStyles);
+// 투수 전용 캐러셀 (3장씩 보기)
+function initPitcherCarousel() {
+    const group = document.querySelector('#pitcher');
+    if (!group) return;
+
+    const container = group.querySelector('.players-carousel-container');
+    const track = group.querySelector('.players-carousel');
+    const prevBtn = group.querySelector('#pitcher-prev');
+    const nextBtn = group.querySelector('#pitcher-next');
+    const cards = Array.from(group.querySelectorAll('.players-carousel .player-card'));
+
+    if (!container || !track || !prevBtn || !nextBtn || cards.length === 0) return;
+
+    const state = { page: 0, itemsPerView: 3, totalPages: 1 };
+
+    function computeItemsPerView() {
+        return 3; // 항상 3장 고정
+    }
+
+    function layout() {
+        state.itemsPerView = computeItemsPerView();
+        const gapPx = 16; // must match CSS gap
+        const containerWidth = container.clientWidth;
+        const cardWidth = (containerWidth - gapPx * (state.itemsPerView - 1)) / state.itemsPerView;
+        cards.forEach(card => { card.style.width = `${Math.max(0, cardWidth)}px`; });
+        state.totalPages = Math.max(1, Math.ceil(cards.length / state.itemsPerView));
+        if (state.page > state.totalPages - 1) state.page = state.totalPages - 1;
+        apply();
+        updateButtons();
+    }
+
+    function apply() {
+        const startIndex = state.page * state.itemsPerView;
+        const anchorCard = cards[startIndex];
+        const offset = anchorCard ? anchorCard.offsetLeft : 0;
+        track.style.setProperty('--pitcher-offset', `${offset}px`);
+        track.setAttribute('aria-live', 'polite');
+    }
+
+    function updateButtons() {
+        prevBtn.disabled = state.page <= 0;
+        nextBtn.disabled = state.page >= state.totalPages - 1;
+    }
+
+    function go(delta) {
+        const nextPage = state.page + delta;
+        if (nextPage < 0 || nextPage > state.totalPages - 1) return;
+        state.page = nextPage;
+        apply();
+        updateButtons();
+    }
+
+    function layoutWhenVisible() {
+        if (container.clientWidth > 0 && group.classList.contains('active')) {
+            layout();
+            return;
+        }
+        const mo = new MutationObserver(() => {
+            if (container.clientWidth > 0 && group.classList.contains('active')) {
+                layout();
+                mo.disconnect();
+            }
+        });
+        mo.observe(group, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    prevBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); go(-1); });
+    nextBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); go(1); });
+
+    layout();
+    if (container.clientWidth === 0) layoutWhenVisible();
+    window.addEventListener('resize', () => { layout(); });
+}
+
+// 포수 전용 캐러셀 (3장씩 보기)
+function initCatcherCarousel() {
+    const group = document.querySelector('#catcher');
+    if (!group) return;
+
+    const container = group.querySelector('.players-carousel-container');
+    const track = group.querySelector('.players-carousel');
+    const prevBtn = group.querySelector('#catcher-prev');
+    const nextBtn = group.querySelector('#catcher-next');
+    const cards = Array.from(group.querySelectorAll('.players-carousel .player-card'));
+
+    if (!container || !track || !prevBtn || !nextBtn || cards.length === 0) return;
+
+    const state = { page: 0, itemsPerView: 3, totalPages: 1 };
+
+    function computeItemsPerView() {
+        return 3; // 항상 3장 고정
+    }
+
+    function layout() {
+        state.itemsPerView = computeItemsPerView();
+        const gapPx = 16;
+        const containerWidth = container.clientWidth;
+        const cardWidth = (containerWidth - gapPx * (state.itemsPerView - 1)) / state.itemsPerView;
+        cards.forEach(card => { card.style.width = `${Math.max(0, cardWidth)}px`; });
+        state.totalPages = Math.max(1, Math.ceil(cards.length / state.itemsPerView));
+        if (state.page > state.totalPages - 1) state.page = state.totalPages - 1;
+        apply();
+        updateButtons();
+    }
+
+    function apply() {
+        const startIndex = state.page * state.itemsPerView;
+        const anchorCard = cards[startIndex];
+        const offset = anchorCard ? anchorCard.offsetLeft : 0;
+        track.style.setProperty('--catcher-offset', `${offset}px`);
+        track.setAttribute('aria-live', 'polite');
+    }
+
+    function updateButtons() {
+        prevBtn.disabled = state.page <= 0;
+        nextBtn.disabled = state.page >= state.totalPages - 1;
+    }
+
+    function go(delta) {
+        const nextPage = state.page + delta;
+        if (nextPage < 0 || nextPage > state.totalPages - 1) return;
+        state.page = nextPage;
+        apply();
+        updateButtons();
+    }
+
+    function layoutWhenVisible() {
+        if (container.clientWidth > 0 && group.classList.contains('active')) {
+            layout();
+            return;
+        }
+        const mo = new MutationObserver(() => {
+            if (container.clientWidth > 0 && group.classList.contains('active')) {
+                layout();
+                mo.disconnect();
+            }
+        });
+        mo.observe(group, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    prevBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); go(-1); });
+    nextBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); go(1); });
+
+    layout();
+    if (container.clientWidth === 0) layoutWhenVisible();
+    window.addEventListener('resize', () => { layout(); });
+}
+
+// 내야수 전용 캐러셀 (3장씩 보기)
+function initInfielderCarousel() {
+    const group = document.querySelector('#infielder');
+    if (!group) return;
+
+    const container = group.querySelector('.players-carousel-container');
+    const track = group.querySelector('.players-carousel');
+    const prevBtn = group.querySelector('#infielder-prev');
+    const nextBtn = group.querySelector('#infielder-next');
+    const cards = Array.from(group.querySelectorAll('.players-carousel .player-card'));
+
+    if (!container || !track || !prevBtn || !nextBtn || cards.length === 0) return;
+
+    const state = { page: 0, itemsPerView: 3, totalPages: 1 };
+
+    function computeItemsPerView() {
+        return 3; // 항상 3장 고정
+    }
+
+    function layout() {
+        state.itemsPerView = computeItemsPerView();
+        const gapPx = 16;
+        const containerWidth = container.clientWidth;
+        const cardWidth = (containerWidth - gapPx * (state.itemsPerView - 1)) / state.itemsPerView;
+        cards.forEach(card => { card.style.width = `${Math.max(0, cardWidth)}px`; });
+        state.totalPages = Math.max(1, Math.ceil(cards.length / state.itemsPerView));
+        if (state.page > state.totalPages - 1) state.page = state.totalPages - 1;
+        apply();
+        updateButtons();
+    }
+
+    function apply() {
+        const startIndex = state.page * state.itemsPerView;
+        const anchorCard = cards[startIndex];
+        const offset = anchorCard ? anchorCard.offsetLeft : 0;
+        track.style.setProperty('--infielder-offset', `${offset}px`);
+        track.setAttribute('aria-live', 'polite');
+    }
+
+    function updateButtons() {
+        prevBtn.disabled = state.page <= 0;
+        nextBtn.disabled = state.page >= state.totalPages - 1;
+    }
+
+    function go(delta) {
+        const nextPage = state.page + delta;
+        if (nextPage < 0 || nextPage > state.totalPages - 1) return;
+        state.page = nextPage;
+        apply();
+        updateButtons();
+    }
+
+    function layoutWhenVisible() {
+        if (container.clientWidth > 0 && group.classList.contains('active')) {
+            layout();
+            return;
+        }
+        const mo = new MutationObserver(() => {
+            if (container.clientWidth > 0 && group.classList.contains('active')) {
+                layout();
+                mo.disconnect();
+            }
+        });
+        mo.observe(group, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    prevBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); go(-1); });
+    nextBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); go(1); });
+
+    layout();
+    if (container.clientWidth === 0) layoutWhenVisible();
+    window.addEventListener('resize', () => { layout(); });
+}
+
+// 외야수 전용 캐러셀 (3장씩 보기)
+function initOutfielderCarousel() {
+    const group = document.querySelector('#outfielder');
+    if (!group) return;
+
+    const container = group.querySelector('.players-carousel-container');
+    const track = group.querySelector('.players-carousel');
+    const prevBtn = group.querySelector('#outfielder-prev');
+    const nextBtn = group.querySelector('#outfielder-next');
+    const cards = Array.from(group.querySelectorAll('.players-carousel .player-card'));
+
+    if (!container || !track || !prevBtn || !nextBtn || cards.length === 0) return;
+
+    const state = { page: 0, itemsPerView: 3, totalPages: 1 };
+
+    function computeItemsPerView() {
+        return 3; // 항상 3장 고정
+    }
+
+    function layout() {
+        state.itemsPerView = computeItemsPerView();
+        const gapPx = 16;
+        const containerWidth = container.clientWidth;
+        const cardWidth = (containerWidth - gapPx * (state.itemsPerView - 1)) / state.itemsPerView;
+        cards.forEach(card => { card.style.width = `${Math.max(0, cardWidth)}px`; });
+        state.totalPages = Math.max(1, Math.ceil(cards.length / state.itemsPerView));
+        if (state.page > state.totalPages - 1) state.page = state.totalPages - 1;
+        apply();
+        updateButtons();
+    }
+
+    function apply() {
+        const startIndex = state.page * state.itemsPerView;
+        const anchorCard = cards[startIndex];
+        const offset = anchorCard ? anchorCard.offsetLeft : 0;
+        track.style.setProperty('--outfielder-offset', `${offset}px`);
+        track.setAttribute('aria-live', 'polite');
+    }
+
+    function updateButtons() {
+        prevBtn.disabled = state.page <= 0;
+        nextBtn.disabled = state.page >= state.totalPages - 1;
+    }
+
+    function go(delta) {
+        const nextPage = state.page + delta;
+        if (nextPage < 0 || nextPage > state.totalPages - 1) return;
+        state.page = nextPage;
+        apply();
+        updateButtons();
+    }
+
+    function layoutWhenVisible() {
+        if (container.clientWidth > 0 && group.classList.contains('active')) {
+            layout();
+            return;
+        }
+        const mo = new MutationObserver(() => {
+            if (container.clientWidth > 0 && group.classList.contains('active')) {
+                layout();
+                mo.disconnect();
+            }
+        });
+        mo.observe(group, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    prevBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); go(-1); });
+    nextBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); go(1); });
+
+    layout();
+    if (container.clientWidth === 0) layoutWhenVisible();
+    window.addEventListener('resize', () => { layout(); });
+}
 
 // Leaflet 지도 초기화
 function initLeafletMap() {
-    console.log('Leaflet 지도 초기화 시작...');
-    
-    // Leaflet이 로드되었는지 확인
-    if (typeof L === 'undefined') {
-        console.log('Leaflet이 아직 로드되지 않았습니다. 1초 후 다시 시도합니다.');
-        setTimeout(initLeafletMap, 1000);
-        return;
-    }
-    
-    try {
-        const container = document.getElementById('map');
-        if (!container) {
-            console.error('지도 컨테이너를 찾을 수 없습니다.');
-            return;
-        }
+    const mapContainer = document.getElementById('map');
+    if (!mapContainer || typeof L === 'undefined') return;
 
-        console.log('지도 컨테이너를 찾았습니다. Leaflet 지도를 생성합니다...');
+    // 사직야구장 근처 좌표 (대략)
+    const sajikLatLng = [35.1989, 129.061];
 
-        // 사직야구장 좌표 (위도, 경도)
-        const lat = 35.1795543;
-        const lng = 129.0756416;
+    // 중복 초기화 방지
+    if (mapContainer._leaflet_id) return;
 
-        // 지도 생성 (확대 레벨 16)
-        const map = L.map('map').setView([lat, lng], 16);
+    const map = L.map(mapContainer, { zoomControl: true }).setView(sajikLatLng, 15);
 
-        // OpenStreetMap 타일 레이어 추가
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            maxZoom: 19
-        }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-        // 사직야구장 마커 추가
-        const marker = L.marker([lat, lng]).addTo(map);
-
-        // 팝업 내용
-        const popupContent = `
-            <div style="text-align: center; font-family: 'Noto Sans KR', sans-serif;">
-                <h3 style="color: #ff6b35; margin: 0 0 5px 0;">⚾ 사직야구장</h3>
-                <p style="margin: 0; color: #666; font-size: 14px;">롯데 자이언츠 홈구장</p>
-                <p style="margin: 5px 0 0 0; color: #888; font-size: 12px;">부산광역시 사하구 사직로 45</p>
-            </div>
-        `;
-
-        // 마커에 팝업 바인딩 및 자동 열기
-        marker.bindPopup(popupContent).openPopup();
-
-        // 지도 스타일 개선
-        map.getContainer().style.borderRadius = '15px';
-
-        console.log('Leaflet 지도가 성공적으로 생성되었습니다.');
-        
-    } catch (error) {
-        console.error('Leaflet 지도 초기화 중 오류가 발생했습니다:', error);
-        console.error('상세 오류 정보:', error.message);
-    }
+    L.marker(sajikLatLng).addTo(map)
+        .bindPopup('사직야구장')
+        .openPopup();
 }
 
-// 페이지 로드 완료 시 초기화
-window.addEventListener('load', () => {
-    console.log('사직야구장 웹사이트가 로드되었습니다!');
-    
-    // 로딩 애니메이션
-    const heroContent = document.querySelector('.hero-content');
-    if (heroContent) {
-        heroContent.style.opacity = '0';
-        heroContent.style.transform = 'translateY(30px)';
-        
-        setTimeout(() => {
-            heroContent.style.transition = 'opacity 1s ease, transform 1s ease';
-            heroContent.style.opacity = '1';
-            heroContent.style.transform = 'translateY(0)';
-        }, 500);
-    }
-
-    // Leaflet 지도 초기화 (1초 후 실행)
-    setTimeout(() => {
-        initLeafletMap();
-    }, 1000);
+// 초기화 (확장)
+document.addEventListener('DOMContentLoaded', () => {
+    initPlayersTabs();
+    initPitcherCarousel();
+    initCatcherCarousel();
+    initInfielderCarousel();
+    initOutfielderCarousel();
+    initLeafletMap();
 });
+
+// 탭 전환 시 레이아웃 재계산 확장
+(function enhanceTabRecalc(){
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const recalcPositions = new Set(['pitcher','catcher','infielder','outfielder']);
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const pos = btn.getAttribute('data-position');
+            if (recalcPositions.has(pos)) {
+                window.dispatchEvent(new Event('resize'));
+            }
+        });
+    });
+})();
+
+// 아래 캐러셀 관련 공통 로직은 비활성화(노옵)
+function initCarousel() {}
+function moveCarousel() {}
+function updateCarousel() {}
+function updateButtons() {}
+function updateAllCarousels() {}
+function resetCarousel() {}
+window.addEventListener('resize', () => {});
